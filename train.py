@@ -358,10 +358,10 @@ class BaseTrainer:
                                                         gt3D,
                                                         num_clicks=11)
 
-                epoch_loss += loss.item()
-                epoch_dice += self.get_dice_score(prev_masks, gt3D)
-                cur_loss = loss.item()
-
+                epoch_loss += loss.detach().item()
+                epoch_dice += self.get_dice_score(prev_masks,gt3D) 
+                cur_loss = loss.detach().item()
+                
                 loss /= self.args.accumulation_steps
 
                 self.scaler.scale(loss).backward()
