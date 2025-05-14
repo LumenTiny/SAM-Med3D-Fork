@@ -256,17 +256,19 @@ def validate_paired_img_gt(img_path, gt_path, output_path):
 
 if __name__ == "__main__":
     ''' 1. prepare the pre-trained model with local path or huggingface url '''
-    ckpt_path = "https://huggingface.co/blueyo0/SAM-Med3D/blob/main/sam_med3d_turbo.pth"
     # or you can use a local path like: 
-    # ckpt_path = "./ckpt/sam_med3d_turbo.pth"
+    ckpt_path = "./ckpt/base3d_dice_best.pth"
     model = medim.create_model("SAM-Med3D",
-                               pretrained=True,
-                               checkpoint_path=ckpt_path)
+                               pretrained=False,
+                               checkpoint_path=None)
+    state_dict = torch.load(ckpt_path, map_location="cpu", weights_only=False)
+    import pdb; pdb.set_trace()
+    model.load_state_dict(state_dict['model_state_dict'])
 
     ''' 2. read and pre-process your input data '''
-    img_path = "./test_data/Seg_Exps/ACDC/ACDC_test_cases/patient101_frame01_0000.nii.gz"
-    gt_path =  "./test_data/Seg_Exps/ACDC/ACDC_test_gts/patient101_frame01.nii.gz"
-    out_path = "./test_data/Seg_Exps/ACDC/ACDC_test_SAM_Med3d/patient101_frame01.nii.gz"
+    img_path = "./data/ct_AMOS/imagesVal/amos_0008.nii.gz"
+    gt_path =  "./data/ct_AMOS/labelsVal/amos_0008.nii.gz"
+    out_path = "./data/ct_AMOS_pred/amos_0008.nii.gz"
     
     ''' 3. infer with the pre-trained SAM-Med3D model '''
     validate_paired_img_gt(img_path, gt_path, out_path)
