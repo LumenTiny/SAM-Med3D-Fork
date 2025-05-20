@@ -345,7 +345,7 @@ class MaskDecoder3D(nn.Module):
         image_pe: torch.Tensor,
         sparse_prompt_embeddings: torch.Tensor,
         dense_prompt_embeddings: torch.Tensor,
-        multimask_output: bool,
+        multimask_output: bool = False,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Predict masks given image and prompt embeddings.
