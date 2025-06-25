@@ -7,7 +7,7 @@
 @Brief   :   Example code for inference with MedIM
 '''
 
-import medim
+# import medim
 import torch
 import numpy as np
 import torch.nn.functional as F
@@ -110,6 +110,7 @@ def sam_model_infer(model,
             image_pe=model.prompt_encoder.get_dense_pe(),  # (1, 384, 8, 8, 8)
             sparse_prompt_embeddings=sparse_embeddings,  # (1, 2, 384)
             dense_prompt_embeddings=dense_embeddings,  # (1, 384, 8, 8, 8)
+            multimask_output=False
         )
 
         prev_mask = F.interpolate(low_res_masks,
@@ -336,10 +337,14 @@ if __name__ == "__main__":
     # ckpt_path = "https://huggingface.co/blueyo0/SAM-Med3D/blob/main/sam_med3d_turbo.pth"
     # or you can use the local path like: 
     # ckpt_path = "./ckpt/sam_med3d_turbo_bbox_cvpr.pth" # 10 percent of data
-    ckpt_path = "./ckpt/sam_med3d_turbo_cvpr_all.pth" # all data
-    model = medim.create_model("SAM-Med3D",
-                               pretrained=True,
-                               checkpoint_path=ckpt_path)
+    from segment_anything.build_sam3D import sam_model_registry3D
+    ckpt_path = "./ckpt/sam_med3d_turbo_cvpr_alldata.pth" # all data
+    model = sam_model_registry3D["vit_b_ori"](checkpoint=None)
+    state_dict = torch.load(ckpt_path, map_location="cpu", weights_only=False)
+    model.load_state_dict(state_dict['model_state_dict'])
+    # model = medim.create_model("SAM-Med3D",
+    #                            pretrained=True,
+    #                            checkpoint_path=ckpt_path)
 
     ''' 2. read and pre-process your input data '''
     npz_file = glob("inputs/*.npz")[0]
@@ -372,4 +377,4 @@ if __name__ == "__main__":
 
     output_path = osp.join(out_dir, osp.basename(npz_file))
     np.savez_compressed(output_path, segs=final_pred)
-    print("result saved to", output_path)
+    # print("result saved to", output_path)

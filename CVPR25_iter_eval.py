@@ -282,7 +282,7 @@ for docker in dockers:
         # load docker and create a new folder to save segmentation results
         teamname = docker.split('.')[0].lower()
         print('teamname docker: ', docker)
-        # os.system('docker image load -i {}'.format(join(docker_path, docker)))
+        os.system('docker image load -i {}'.format(join(docker_path, docker)))
         team_outpath = join(save_path, teamname)
         if os.path.exists(team_outpath):
             shutil.rmtree(team_outpath)
@@ -473,11 +473,10 @@ for docker in dockers:
                             ) 
 
                 # Model inference on the current input
-                # if torch.cuda.is_available(): # GPU available
-                #     cmd = 'docker container run --gpus "device=0" -m 16G --name {} --rm -v $PWD/inputs/:/workspace/inputs/ -v $PWD/outputs/:/workspace/outputs/ blueyo0/{}:latest /bin/bash -c "sh predict.sh" '.format(teamname.replace('/', '_'), teamname)
-                # else:
-                #     cmd = 'docker container run -m 32G --name {} --rm -v $PWD/inputs/:/workspace/inputs/ -v $PWD/outputs/:/workspace/outputs/ {}:latest /bin/bash -c "sh predict.sh" '.format(teamname.replace('/', '_'), teamname)
-                cmd = "python medim_iner.py"
+                if torch.cuda.is_available(): # GPU available
+                    cmd = 'docker container run --gpus "device=0" -m 32G --name {} --rm -v $PWD/inputs/:/workspace/inputs/ -v $PWD/outputs/:/workspace/outputs/ {}:latest /bin/bash -c "sh predict.sh" '.format(teamname.replace('/', '_'), teamname)
+                else:
+                    cmd = 'docker container run -m 32G --name {} --rm -v $PWD/inputs/:/workspace/inputs/ -v $PWD/outputs/:/workspace/outputs/ {}:latest /bin/bash -c "sh predict.sh" '.format(teamname.replace('/', '_'), teamname)
                 if verbose:
                     print(teamname, ' docker command:', cmd, '\n', 'testing image name:', case)
                 start_time = time.time()
